@@ -88,7 +88,7 @@ void buttonStats(){
 	if (server.hasArg("button_id")== true){ //Check if body received
 		Serial.println("Botao precionado");
 
-		String button_status = server.arg("id");
+		String button_status = server.arg("button_id");
 		String success = "1";
 
 		if(button_status=="start"){

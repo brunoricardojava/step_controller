@@ -24,33 +24,21 @@
 
         <div class="tab-pane fade in active" id="tab_controle">
           <h2>Painel de controle</h2>
-          <p>Escolha o angulo de passo: </p>
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="label_tipo_passo">Escolha o tipo de Angulo desejado</span>
+          </div>
 
           <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-primary active">
-              <input type="radio" id="but_full_step" autocomplete="off" checked> Full-Step
-            </label>
-            <label class="btn btn-primary">
-              <input type="radio" id="but_half_step" autocomplete="off"> Half-Step(1/2)
-            </label>
-            <label class="btn btn-primary">
-              <input type="radio" id="but_quarter_step" autocomplete="off"> Quarter-Step(1/4)
-            </label>
-            <label class="btn btn-primary">
-              <input type="radio" id="but_eighth_step" autocomplete="off"> Eighth-Step(1/8)
-            </label>
-            <label class="btn btn-primary">
-              <input type="radio" id="but_sixteenth_step" autocomplete="off"> Sixteenth-Step(1/16)
-            </label>
+            <div class="btn btn-primary" id="but_full_step" type="button">Full-Step</div>
+            <div class="btn btn-primary" id="but_half_step" type="button">Half-Step(1/2)</div>
+            <div class="btn btn-primary" id="but_quarter_step" type="button">Quarter-Step(1/4)</div>
+            <div class="btn btn-primary" id="but_eighth_step" type="button">Eighth-Step(1/8)</div>
+            <div class="btn btn-primary" id="but_sixteenth_step" type="button">Sixteenth-Step(1/16)</div>
           </div><br><br>
 
           <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-info">
-              <input type="radio" id="but_sentido_horario" autocomplete="off"> Sentido horario
-            </label>
-            <label class="btn btn-info">
-              <input type="radio" id="but_sentido_antihorario" autocomplete="off"> Sentido Anti-horario
-            </label>
+            <div class="btn btn-primary" id="but_sentido_horario" type="button">Sentido Horario</div>
+            <div class="btn btn-primary" id="but_sentido_antihorario" type="button">Sentido Anti-horario</div>
           </div><br><br>
 
           <div class="input-group mb-3">
@@ -109,13 +97,13 @@
     $('#but_start').click(function(){ setBouton('start'); });
     $('#but_stop').click(function(){ setBouton('stop'); });
     $('#but_reset').click(function(){ setBouton('reset'); });
-    $('#full_step').click(function(){ setBouton('full_step'); });
-    $('#half_step').click(function(){ setBouton('half_step'); });
-    $('#quarter_step').click(function(){ setBouton('quarter_step'); });
-    $('#eighth_step').click(function(){ setBouton('eighth_step'); });
-    $('#sixteenth_step').click(function(){ setBouton('sixteenth_step'); });
-    $('#sentido_horario').click(function(){ setBouton('sentido_horario'); });
-    $('#sentido_antihorario').click(function(){ setBouton('sentido_antihorario'); });
+    $('#but_full_step').click(function(){ setBouton('full_step'); });
+    $('#but_half_step').click(function(){ setBouton('half_step'); });
+    $('#but_quarter_step').click(function(){ setBouton('quarter_step'); });
+    $('#but_eighth_step').click(function(){ setBouton('eighth_step'); });
+    $('#but_sixteenth_step').click(function(){ setBouton('sixteenth_step'); });
+    $('#but_sentido_horario').click(function(){ setBouton('sentido_horario'); });
+    $('#but_sentido_antihorario').click(function(){ setBouton('sentido_antihorario'); });
 
     function setBouton(id){
       $.post("button?button_id=" + id).done(function(data){
@@ -125,6 +113,7 @@
         if ( data.success === "1" | data.success === 1 ) {
           if ( data.success === "1" ) {
             console.log("OK");
+            $("#label_tipo_passo").html("Angulo selecionado: " + String(data.button));
           } else {
             console.log("error!");
           }
