@@ -15,16 +15,6 @@ Thread DEBUG_SERIAL;
 //Instanciando Thread controller
 ThreadController MAIN_THREAD;
 
-//Definição das funções
-void debugSerial();
-
-void configThread(){
-	DEBUG_SERIAL.setInterval(tempo_debug);
-	DEBUG_SERIAL.onRun(debugSerial);
-
-	MAIN_THREAD.add(&DEBUG_SERIAL);
-}
-
 void configSerial(){
 	Serial.begin(serial_baund);
 	delay(100);
@@ -38,6 +28,13 @@ void configWifi(){
 
 void debugSerial(){
 	Serial.println("Saida serial: ");
+}
+
+void configThread(){
+	DEBUG_SERIAL.setInterval(tempo_debug);
+	DEBUG_SERIAL.onRun(debugSerial);
+
+	MAIN_THREAD.add(&DEBUG_SERIAL);
 }
 
 void setup(){
