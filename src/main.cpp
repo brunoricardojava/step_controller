@@ -84,68 +84,86 @@ void funcaoTest(){
 }
 
 
-void buttonStats(){
+void buttonComand(){
 	if (server.hasArg("button_id")== true){ //Check if body received
-		Serial.println("Botao precionado");
+		Serial.println("Botao de comando precionado");
 
-		String button_status = server.arg("button_id");
+		String comand_status = server.arg("button_id");
 		String success = "1";
 
-		if(button_status=="start"){
+		if(comand_status=="start"){
 			status_motor = "start";
 			Serial.println("Botao START precionado");
 		}
 		else{
-			if (button_status=="stop") {
+			if (comand_status=="stop") {
 				status_motor = "stop";
 				Serial.println("Botao STOP precionado");
 			}
 			else{
-				if (button_status=="reset") {
+				if (comand_status=="reset") {
 					Serial.println("Botao RESET precionado");
 				}
 				else{
-					if (button_status=="full_step") {
-						tipo_passo = "full_step";
-						Serial.println("Angulo de passo setado para Full-Step");
+					Serial.print("ID de botao nao valido");
+					server.send(200, "text/plain", "Botao nao valido");
+					success = "0";
+				}
+			}
+		}
+
+		String json = "{\"buttonComand\":\"" + String(comand_status) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+  }
+}
+
+void paramStep(){
+	if (server.hasArg("button_id")== true){ //Check if body received
+		Serial.println("Botao de parametro precionado");
+
+		String param_status = server.arg("button_id");
+		String success = "1";
+
+		if (param_status=="full_step") {
+			tipo_passo = "full_step";
+			Serial.println("Angulo de passo setado para Full-Step");
+		}
+		else{
+			if (param_status=="half_step") {
+				tipo_passo = "half_step";
+				Serial.println("Angulo de passo setado para Half-Step");
+			}
+			else{
+				if (param_status=="quarter_step") {
+					tipo_passo = "quarter_step";
+					Serial.println("Angulo de passo setado para Quarter-Step");
+				}
+				else{
+					if (param_status=="eighth_step") {
+						tipo_passo = "eighth_step";
+						Serial.println("Angulo de passo setado para Eighth-Step");
 					}
 					else{
-						if (button_status=="half_step") {
-							tipo_passo = "half_step";
-							Serial.println("Angulo de passo setado para Half-Step");
+						if (param_status=="sixteenth_step") {
+							tipo_passo = "sixteenth_step";
+							Serial.println("Angulo de passo setado para Sixteenth-Step");
 						}
 						else{
-							if (button_status=="quarter_step") {
-								tipo_passo = "quarter_step";
-								Serial.println("Angulo de passo setado para Quarter-Step");
+							if (param_status=="sentido_horario") {
+								sentido_rotacao = "sentido_horario";
+								Serial.println("Sentido de rotacao e horario");
 							}
 							else{
-								if (button_status=="eighth_step") {
-									tipo_passo = "eighth_step";
-									Serial.println("Angulo de passo setado para Eighth-Step");
+								if (param_status=="sentido_antihorario") {
+									sentido_rotacao = "sentido_antihorario";
+									Serial.println("Sentido de rotacao e anti-horario");
 								}
 								else{
-									if (button_status=="sixteenth_step") {
-										tipo_passo = "sixteenth_step";
-										Serial.println("Angulo de passo setado para Sixteenth-Step");
-									}
-									else{
-										if (button_status=="sentido_horario") {
-											sentido_rotacao = "sentido_horario";
-											Serial.println("Sentido de rotacao e horario");
-										}
-										else{
-											if (button_status=="sentido_antihorario") {
-												sentido_rotacao = "sentido_antihorario";
-												Serial.println("Sentido de rotacao e anti-horario");
-											}
-											else{
-												Serial.print("ID de botao nao valido");
-												server.send(200, "text/plain", "Botao nao valido");
-												success = "0";
-											}
-										}
-									}
+									Serial.print("ID de botao nao valido");
+									server.send(200, "text/plain", "Botao nao valido");
+									success = "0";
 								}
 							}
 						}
@@ -154,12 +172,41 @@ void buttonStats(){
 			}
 		}
 
-		String json = "{\"button\":\"" + String(button_status) + "\",";
+		String json = "{\"buttonParam\":\"" + String(param_status) + "\",";
   	json += "\"success\":\"" + String(success) + "\"}";
 
   	server.send(200, "application/json", json);
 
-		return;
+	}
+}
+
+void sentidoMotor(){
+	if (server.hasArg("button_id")== true){ //Check if body received
+		Serial.println("Botao de comando precionado");
+
+		String sentido_motor = server.arg("button_id");
+		String success = "1";
+
+		if (sentido_motor=="sentido_horario") {
+			sentido_rotacao = "sentido_horario";
+			Serial.println("Sentido de rotacao e horario");
+		}
+		else{
+			if (sentido_motor=="sentido_antihorario") {
+				sentido_rotacao = "sentido_antihorario";
+				Serial.println("Sentido de rotacao e anti-horario");
+			}
+			else{
+				Serial.print("ID de botao nao valido");
+				server.send(200, "text/plain", "Botao nao valido");
+				success = "0";
+			}
+		}
+
+		String json = "{\"sentidoMotor\":\"" + String(sentido_motor) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
   }
 }
 
@@ -177,7 +224,9 @@ void configSpiffs(){
 
 void configServer(){
 	server.on("/test",funcaoTest);
-	server.on("/button",buttonStats);
+	server.on("/buttonComand",buttonComand);
+	server.on("/paramStep",paramStep);
+	server.on("/sentidoMotor", sentidoMotor);
 
 	server.serveStatic("/img", SPIFFS, "/img");
   server.serveStatic("/", SPIFFS, "/index.html");

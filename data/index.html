@@ -36,6 +36,10 @@
             <div class="btn btn-primary" id="but_sixteenth_step" type="button">Sixteenth-Step(1/16)</div>
           </div><br><br>
 
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="label_sentido">Escolha o sentido de rotação desejado</span>
+          </div>
+
           <div class="btn-group btn-group-toggle" data-toggle="buttons">
             <div class="btn btn-primary" id="but_sentido_horario" type="button">Sentido Horario</div>
             <div class="btn btn-primary" id="but_sentido_antihorario" type="button">Sentido Anti-horario</div>
@@ -58,6 +62,10 @@
           <div class="button btn btn-success btn-lg" id="but_start" type="button">Start</div>
           <div class="button btn btn-success btn-lg" id="but_stop" type="button">Stop</div>
           <div class="button btn btn-success btn-lg" id="but_reset" type="button">Reset</div>
+
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="label_comando">Status do motor</span>
+          </div>
 
         </div>
 
@@ -94,26 +102,62 @@
     <script>
 
     // Commandes sur le GPIO - GPIO change
-    $('#but_start').click(function(){ setBouton('start'); });
-    $('#but_stop').click(function(){ setBouton('stop'); });
-    $('#but_reset').click(function(){ setBouton('reset'); });
-    $('#but_full_step').click(function(){ setBouton('full_step'); });
-    $('#but_half_step').click(function(){ setBouton('half_step'); });
-    $('#but_quarter_step').click(function(){ setBouton('quarter_step'); });
-    $('#but_eighth_step').click(function(){ setBouton('eighth_step'); });
-    $('#but_sixteenth_step').click(function(){ setBouton('sixteenth_step'); });
-    $('#but_sentido_horario').click(function(){ setBouton('sentido_horario'); });
-    $('#but_sentido_antihorario').click(function(){ setBouton('sentido_antihorario'); });
+    $('#but_start').click(function(){ buttonComand('start'); });
+    $('#but_stop').click(function(){ buttonComand('stop'); });
+    $('#but_reset').click(function(){ buttonComand('reset'); });
+    $('#but_full_step').click(function(){ paramStep('full_step'); });
+    $('#but_half_step').click(function(){ paramStep('half_step'); });
+    $('#but_quarter_step').click(function(){ paramStep('quarter_step'); });
+    $('#but_eighth_step').click(function(){ paramStep('eighth_step'); });
+    $('#but_sixteenth_step').click(function(){ paramStep('sixteenth_step'); });
+    $('#but_sentido_horario').click(function(){ sentidoMotor('sentido_horario'); });
+    $('#but_sentido_antihorario').click(function(){ sentidoMotor('sentido_antihorario'); });
 
-    function setBouton(id){
-      $.post("button?button_id=" + id).done(function(data){
+    function buttonComand(id){
+      $.post("buttonComand?button_id=" + id).done(function(data){
         console.log("Funcao de setBouton " + JSON.stringify(data));
         var id_button = "#but_" + id;
         console.log("data.success: "+data.success);
         if ( data.success === "1" | data.success === 1 ) {
           if ( data.success === "1" ) {
             console.log("OK");
-            $("#label_tipo_passo").html("Angulo selecionado: " + String(data.button));
+            $("#label_comando").html("Status do motor: " + String(data.buttonComand));
+          } else {
+            console.log("error!");
+          }
+        }
+      }).fail(function(err){
+        console.log("err setButton " + JSON.stringify(err));
+      });
+    }
+
+    function paramStep(id){
+      $.post("paramStep?button_id=" + id).done(function(data){
+        console.log("Funcao de setBouton " + JSON.stringify(data));
+        var id_button = "#but_" + id;
+        console.log("data.success: "+data.success);
+        if ( data.success === "1" | data.success === 1 ) {
+          if ( data.success === "1" ) {
+            console.log("OK");
+            $("#label_tipo_passo").html("Tipo de passo selecionado: " + String(data.buttonParam));
+          } else {
+            console.log("error!");
+          }
+        }
+      }).fail(function(err){
+        console.log("err setButton " + JSON.stringify(err));
+      });
+    }
+
+    function sentidoMotor(id){
+      $.post("sentidoMotor?button_id=" + id).done(function(data){
+        console.log("Funcao de setBouton " + JSON.stringify(data));
+        var id_button = "#but_" + id;
+        console.log("data.success: "+data.success);
+        if ( data.success === "1" | data.success === 1 ) {
+          if ( data.success === "1" ) {
+            console.log("OK");
+            $("#label_sentido_motor").html("Sentido do motor selecionado: " + String(data.sentidoMotor));
           } else {
             console.log("error!");
           }
