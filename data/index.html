@@ -118,13 +118,11 @@
         console.log("Funcao de setBouton " + JSON.stringify(data));
         var id_button = "#but_" + id;
         console.log("data.success: "+data.success);
-        if ( data.success === "1" | data.success === 1 ) {
-          if ( data.success === "1" ) {
-            console.log("OK");
-            $("#label_comando").html("Status do motor: " + String(data.buttonComand));
-          } else {
-            console.log("error!");
-          }
+        if ( data.success === "1") {
+          console.log("OK");
+          $("#label_comando").html("Status do motor: " + String(data.buttonComand));
+        } else {
+          $("#label_comando").html("Motor em movimento(aperte -STOP- ou espere completar o movimento)");
         }
       }).fail(function(err){
         console.log("err setButton " + JSON.stringify(err));
@@ -136,13 +134,11 @@
         console.log("Funcao de setBouton " + JSON.stringify(data));
         var id_button = "#but_" + id;
         console.log("data.success: "+data.success);
-        if ( data.success === "1" | data.success === 1 ) {
-          if ( data.success === "1" ) {
-            console.log("OK");
-            $("#label_tipo_passo").html("Tipo de passo selecionado: " + String(data.buttonParam));
-          } else {
-            console.log("error!");
-          }
+        if ( data.success === "1") {
+          console.log("OK");
+          $("#label_tipo_passo").html("Tipo de passo selecionado: " + String(data.buttonParam));
+        } else {
+          $("#label_tipo_passo").html("Motor em movimento(aperte -STOP- ou espere completar o movimento)");
         }
       }).fail(function(err){
         console.log("err setButton " + JSON.stringify(err));
@@ -154,13 +150,11 @@
         console.log("Funcao de setBouton " + JSON.stringify(data));
         var id_button = "#but_" + id;
         console.log("data.success: "+data.success);
-        if ( data.success === "1" | data.success === 1 ) {
-          if ( data.success === "1" ) {
-            console.log("OK");
-            $("#label_sentido_motor").html("Sentido do motor selecionado: " + String(data.sentidoMotor));
-          } else {
-            console.log("error!");
-          }
+        if ( data.success === "1") {
+          console.log("OK");
+          $("#label_sentido_motor").html("Sentido do motor selecionado: " + String(data.sentidoMotor));
+        } else {
+          $("#label_sentido_motor").html("Motor em movimento(aperte -STOP- ou espere completar o movimento)");
         }
       }).fail(function(err){
         console.log("err setButton " + JSON.stringify(err));

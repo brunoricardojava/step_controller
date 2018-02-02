@@ -92,8 +92,11 @@ void buttonComand(){
 		String success = "1";
 
 		if(comand_status=="start"){
-			status_motor = "start";
-			Serial.println("Botao START precionado");
+			if(command_update){
+				status_motor = "start";
+				Serial.println("Botao START precionado");
+			}
+			else success = "0";
 		}
 		else{
 			if (comand_status=="stop") {
@@ -120,7 +123,7 @@ void buttonComand(){
 }
 
 void paramStep(){
-	if (server.hasArg("button_id")== true){ //Check if body received
+	if (server.hasArg("button_id")== true && command_update){ //Check if body received
 		Serial.println("Botao de parametro precionado");
 
 		String param_status = server.arg("button_id");
@@ -178,10 +181,20 @@ void paramStep(){
   	server.send(200, "application/json", json);
 
 	}
+	else{
+
+		String param_status = server.arg("button_id");
+		String success = "0";
+
+		String json = "{\"buttonParam\":\"" + String(param_status) + "\",";
+		json += "\"success\":\"" + String(success) + "\"}";
+
+		server.send(200, "application/json", json);
+	}
 }
 
 void sentidoMotor(){
-	if (server.hasArg("button_id")== true){ //Check if body received
+	if (server.hasArg("button_id")== true && command_update){ //Check if body received
 		Serial.println("Botao de comando precionado");
 
 		String sentido_motor = server.arg("button_id");
@@ -208,6 +221,15 @@ void sentidoMotor(){
 
   	server.send(200, "application/json", json);
   }
+	else{
+		String sentido_motor = server.arg("button_id");
+		String success = "0";
+
+		String json = "{\"sentidoMotor\":\"" + String(sentido_motor) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+	}
 }
 
 void configSpiffs(){
