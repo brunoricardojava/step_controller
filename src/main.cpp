@@ -1,5 +1,7 @@
+#include "Arduino.h"
 #include "Thread.h"
 #include "ThreadController.h"
+#include "WiFiManager.h"
 
 //Velocidade serial
 #define serial_baund 115200
@@ -12,6 +14,9 @@ Thread DEBUG_SERIAL;
 
 //Instanciando Thread controller
 ThreadController MAIN_THREAD;
+
+//Definição das funções
+void debugSerial();
 
 void configThread(){
 	DEBUG_SERIAL.setInterval(tempo_debug);
@@ -26,6 +31,11 @@ void configSerial(){
 	Serial.println("Serial iniciado");
 }
 
+void configWifi(){
+	WiFiManager wifiManager;
+	wifiManager.autoConnect();
+}
+
 void debugSerial(){
 	Serial.println("Saida serial: ");
 }
@@ -33,6 +43,7 @@ void debugSerial(){
 void setup(){
 	configSerial();
 	configThread();
+	configWifi();
 }
 
 void loop(){
