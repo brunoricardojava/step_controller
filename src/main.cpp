@@ -23,6 +23,14 @@ Thread DEBUG_SERIAL;
 //Instanciando Thread controller
 ThreadController MAIN_THREAD;
 
+//Variaveis globais
+String tipo_passo = "full_step";
+String sentido_rotacao = "sentido_horario";
+String status_motor = "stop";
+
+//Variavel para permitir o update dos comandos pro motor
+bool command_update = true;
+
 //Instanciando um servidor http
 ESP8266WebServer server(80);
 
@@ -75,6 +83,86 @@ void funcaoTest(){
 	server.send(200, "text/plain", message);       //Response to the HTTP requestP)
 }
 
+
+void buttonStats(){
+	if (server.hasArg("button_id")== true){ //Check if body received
+		Serial.println("Botao precionado");
+
+		String button_status = server.arg("id");
+		String success = "1";
+
+		if(button_status=="start"){
+			status_motor = "start";
+			Serial.println("Botao START precionado");
+		}
+		else{
+			if (button_status=="stop") {
+				status_motor = "stop";
+				Serial.println("Botao STOP precionado");
+			}
+			else{
+				if (button_status=="reset") {
+					Serial.println("Botao RESET precionado");
+				}
+				else{
+					if (button_status=="full_step") {
+						tipo_passo = "full_step";
+						Serial.println("Angulo de passo setado para Full-Step");
+					}
+					else{
+						if (button_status=="half_step") {
+							tipo_passo = "half_step";
+							Serial.println("Angulo de passo setado para Half-Step");
+						}
+						else{
+							if (button_status=="quarter_step") {
+								tipo_passo = "quarter_step";
+								Serial.println("Angulo de passo setado para Quarter-Step");
+							}
+							else{
+								if (button_status=="eighth_step") {
+									tipo_passo = "eighth_step";
+									Serial.println("Angulo de passo setado para Eighth-Step");
+								}
+								else{
+									if (button_status=="sixteenth_step") {
+										tipo_passo = "sixteenth_step";
+										Serial.println("Angulo de passo setado para Sixteenth-Step");
+									}
+									else{
+										if (button_status=="sentido_horario") {
+											sentido_rotacao = "sentido_horario";
+											Serial.println("Sentido de rotacao e horario");
+										}
+										else{
+											if (button_status=="sentido_antihorario") {
+												sentido_rotacao = "sentido_antihorario";
+												Serial.println("Sentido de rotacao e anti-horario");
+											}
+											else{
+												Serial.print("ID de botao nao valido");
+												server.send(200, "text/plain", "Botao nao valido");
+												success = "0";
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		String json = "{\"button\":\"" + String(button_status) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+
+		return;
+  }
+}
+
 void configSpiffs(){
   if (!SPIFFS.begin())
   {
@@ -89,6 +177,7 @@ void configSpiffs(){
 
 void configServer(){
 	server.on("/test",funcaoTest);
+	server.on("/button",buttonStats);
 
 	server.serveStatic("/img", SPIFFS, "/img");
   server.serveStatic("/", SPIFFS, "/index.html");

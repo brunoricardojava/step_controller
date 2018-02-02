@@ -2,12 +2,12 @@
 <html charset="UTF-8">
   <head>
     <meta name="viewport">
-    <script src="/js/jquery.min.js"></script>
-    <script src="/js/loader.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/bootstrap-table.min.js"></script>
-    <link rel="stylesheet" href="/css/bootstrap-table.min.css">
-    <link href="/css/bootstrap.min.css" rel="stylesheet" title="main">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/superhero/bootstrap.min.css" rel="stylesheet" title="main">
     <title>Controle Motor de Passo(esp8266)</title>
   </head>
   <body>
@@ -26,11 +26,51 @@
           <h2>Painel de controle</h2>
           <p>Escolha o angulo de passo: </p>
 
-          <a class="btn btn-primary" href="test" role="button">Link</a>
-          <button class="btn btn-primary" type="submit">Button</button>
-          <input class="btn btn-primary" type="button" value="Input">
-          <input class="btn btn-primary" type="submit" value="Submit">
-          <input class="btn btn-primary" type="reset" value="Reset">
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-primary active">
+              <input type="radio" id="but_full_step" autocomplete="off" checked> Full-Step
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" id="but_half_step" autocomplete="off"> Half-Step(1/2)
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" id="but_quarter_step" autocomplete="off"> Quarter-Step(1/4)
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" id="but_eighth_step" autocomplete="off"> Eighth-Step(1/8)
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" id="but_sixteenth_step" autocomplete="off"> Sixteenth-Step(1/16)
+            </label>
+          </div><br><br>
+
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-info">
+              <input type="radio" id="but_sentido_horario" autocomplete="off"> Sentido horario
+            </label>
+            <label class="btn btn-info">
+              <input type="radio" id="but_sentido_antihorario" autocomplete="off"> Sentido Anti-horario
+            </label>
+          </div><br><br>
+
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-default">Angulo por passo</span>
+            </div>
+            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+          </div>
+
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-default">Angulo desejado</span>
+            </div>
+            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+          </div> <br>
+
+          <div class="button btn btn-success btn-lg" id="but_start" type="button">Start</div>
+          <div class="button btn btn-success btn-lg" id="but_stop" type="button">Stop</div>
+          <div class="button btn btn-success btn-lg" id="but_reset" type="button">Reset</div>
+
         </div>
 
         <div class="tab-pane fade" id="tab_configuration">
@@ -62,5 +102,87 @@
 
       </div>
     </div>
+
+    <script>
+
+    // Commandes sur le GPIO - GPIO change
+    $('#but_start').click(function(){ setBouton('start'); });
+    $('#but_stop').click(function(){ setBouton('stop'); });
+    $('#but_reset').click(function(){ setBouton('reset'); });
+    $('#full_step').click(function(){ setBouton('full_step'); });
+    $('#half_step').click(function(){ setBouton('half_step'); });
+    $('#quarter_step').click(function(){ setBouton('quarter_step'); });
+    $('#eighth_step').click(function(){ setBouton('eighth_step'); });
+    $('#sixteenth_step').click(function(){ setBouton('sixteenth_step'); });
+    $('#sentido_horario').click(function(){ setBouton('sentido_horario'); });
+    $('#sentido_antihorario').click(function(){ setBouton('sentido_antihorario'); });
+
+    function setBouton(id){
+      $.post("button?button_id=" + id).done(function(data){
+        console.log("Funcao de setBouton " + JSON.stringify(data));
+        var id_button = "#but_" + id;
+        console.log("data.success: "+data.success);
+        if ( data.success === "1" | data.success === 1 ) {
+          if ( data.success === "1" ) {
+            console.log("OK");
+          } else {
+            console.log("error!");
+          }
+        }
+      }).fail(function(err){
+        console.log("err setButton " + JSON.stringify(err));
+      });
+    }
+
+
+    var supports_storage = supports_html5_storage();
+    if (supports_storage) {
+      var theme = localStorage.theme;
+      console.log("Recharge le theme " + theme);
+      if (theme) {
+        set_theme(get_themeUrl(theme));
+      }
+    }
+
+
+    jQuery(function($){
+      $('body').on('click', '.change-style-menu-item', function() {
+        var theme_name = $(this).attr('rel');
+        console.log("Change theme " + theme_name);
+        var theme_url = get_themeUrl(theme_name);
+        console.log("URL theme : " + theme_url);
+        set_theme(theme_url);
+      });
+    });
+    // Recupere l'adresse du theme - Get theme URL
+    function get_themeUrl(theme_name){
+      $('#labelTheme').html("Th&egrave;me : " + theme_name);
+      var url_theme = "";
+      if ( theme_name === "bootstrap" ) {
+        url_theme = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
+      } else {
+        url_theme = "https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/" + theme_name + "/bootstrap.min.css";
+      }
+      if (supports_storage) {
+        // Enregistre le theme sélectionné en local - save into the local database the selected theme
+        localStorage.theme = theme_name;
+      }
+      return url_theme;
+    }
+    // Applique le thème - Apply theme
+    function set_theme(theme_url) {
+      $('link[title="main"]').attr('href', theme_url);
+    }
+    // Stockage local disponible ? - local storage available ?
+    function supports_html5_storage(){
+      try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    </script>
+
   </body>
 </html>
