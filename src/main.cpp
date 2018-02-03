@@ -21,18 +21,28 @@ float angulo_desejado (tipo float)
 #define serial_baund 115200
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial 0
+#define debug_serial false
 
 //Habilitar/desabilitar servidor ftp
 #define ftp_server 0
 
 //Definir tempo de chamada das threads
 #define tempo_debug 1000
+#define tempo_motor 300
 
+//Definição dos pinos do motor de passo_motor
+#define driver_MS1 2
+#define driver_MS2 3
+#define driver_MS3 4
 
+#define driver_enable 5
+#define driver_RST 6
+#define driver_STEP 7
+#define driver_DIR 8
 
 //Instanciando Threads
 Thread DEBUG_SERIAL;
+Thread START_MOTOR;
 
 //Instanciando Thread controller
 ThreadController MAIN_THREAD;
@@ -42,7 +52,9 @@ String tipo_passo = "full_step";
 String sentido_rotacao = "sentido_horario";
 String status_motor = "stop";
 float passo_motor = 15.0;
-float angulo_desejado = 0;
+float angulo_desejado = 0.0;
+int rot_speed = 100;
+int micro_step = 1;
 
 //Variavel para permitir o update dos comandos pro motor
 bool command_update = true;
@@ -52,6 +64,19 @@ ESP8266WebServer server(80);
 
 //Instanciando servidor FtpServer
 FtpServer ftpSrv;
+
+//Declatando algumas funções
+void startMotor();
+
+void configPin(){
+	pinMode(driver_MS1, OUTPUT);
+  pinMode(driver_MS2, OUTPUT);
+  pinMode(driver_MS3, OUTPUT);
+  pinMode(driver_enable, OUTPUT);
+  pinMode(driver_DIR, OUTPUT);
+  pinMode(driver_RST, OUTPUT);
+  pinMode(driver_STEP, OUTPUT);
+}
 
 void configSerial(){
 	Serial.begin(serial_baund);
@@ -328,8 +353,12 @@ void configServer(){
 void configThread(){//Configuração das threads
 	DEBUG_SERIAL.setInterval(tempo_debug);
 	DEBUG_SERIAL.onRun(debugSerial);
+	DEBUG_SERIAL.enabled = debug_serial;
 
-	if(debug_serial) MAIN_THREAD.add(&DEBUG_SERIAL);
+	START_MOTOR.setInterval(tempo_motor);
+	START_MOTOR.onRun(startMotor);
+
+	MAIN_THREAD.add(&DEBUG_SERIAL);
 }
 
 void setup(){
@@ -338,10 +367,101 @@ void setup(){
 	configWifi();
 	configSpiffs();
 	configServer();
+	configPin();
 }
 
 void loop(){
 	MAIN_THREAD.run();
 	server.handleClient();
 	if(ftp_server) ftpSrv.handleFTP();
+}
+
+void setMicroStep(String tipo) {   //retorna o valor e seta os pinos para o micro passo desejado
+  if (tipo == "full_step") {
+    micro_step = 1;
+    digitalWrite(driver_MS1, LOW);
+    digitalWrite(driver_MS2, LOW);
+    digitalWrite(driver_MS3, LOW);
+  }
+  else if (tipo == "half_step") {
+    micro_step = 2;
+    digitalWrite(driver_MS1, HIGH);
+    digitalWrite(driver_MS2, LOW);
+    digitalWrite(driver_MS3, LOW);
+  }
+  else if (tipo == "quarter_step") {
+    micro_step = 4;
+    digitalWrite(driver_MS1, LOW);
+    digitalWrite(driver_MS2, HIGH);
+    digitalWrite(driver_MS3, LOW);
+  }
+  else if (tipo == "eighth_step") {
+    micro_step = 8;
+    digitalWrite(driver_MS1, HIGH);
+    digitalWrite(driver_MS2, LOW);
+    digitalWrite(driver_MS3, LOW);
+  }
+  else if (tipo == "sixteenth_step") {
+    micro_step = 16;
+    digitalWrite(driver_MS1, HIGH);
+    digitalWrite(driver_MS2, HIGH);
+    digitalWrite(driver_MS3, HIGH);
+  }
+  else {
+    micro_step = 1;
+    digitalWrite(driver_MS1, LOW);
+    digitalWrite(driver_MS2, LOW);
+    digitalWrite(driver_MS3, LOW);
+  }
+  delay(1);
+}
+
+void setDir(String sentido_rotacao) {  //Seta a direção de rotação
+  if (sentido_rotacao == "sentido_horario") {
+    digitalWrite(driver_DIR, HIGH);
+  }
+  else if (sentido_rotacao == "sentido_antihorario") {
+    digitalWrite(driver_DIR, LOW);
+  }
+  else {
+    digitalWrite(driver_DIR, HIGH);
+  }
+}
+
+int stepsCount(float passo_motor, float angulo_desejado) {
+  float steps;
+  steps = angulo_desejado / passo_motor;
+  steps = steps * micro_step;
+  return steps;
+}
+
+
+void startMotor(){
+	if(status_motor == "start"){
+		command_update = false;
+		digitalWrite(driver_enable, LOW);
+	  digitalWrite(driver_RST, LOW);
+	  delay(10);
+	  digitalWrite(driver_RST, HIGH);
+	  delay(1);
+	  setMicroStep(tipo_passo);
+	  setDir(sentido_rotacao);
+
+	  for (int i = 1; i <= stepsCount(passo_motor, angulo_desejado); i++) {
+	    if (0 < rot_speed <= 100) {
+	      digitalWrite(driver_STEP, HIGH);
+	      delay(500 / rot_speed);
+	      digitalWrite(driver_STEP, LOW);
+	      delay(500 / rot_speed);
+	    }
+	    else {
+	      Serial.println("Erro! O valor de velocidade deve ser entre 0 e 100%");
+	    }
+	  }
+
+		status_motor = "stop";
+		command_update = true;
+
+	  digitalWrite(driver_enable, HIGH);
+	}
 }
