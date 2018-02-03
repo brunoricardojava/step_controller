@@ -37,7 +37,7 @@
           </div><br><br>
 
           <div class="input-group-prepend">
-            <span class="input-group-text" id="label_sentido">Escolha o sentido de rotação desejado</span>
+            <span class="input-group-text" id="label_sentido_motor">Escolha o sentido de rotacao desejado</span>
           </div>
 
           <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -49,14 +49,14 @@
             <div class="input-group-prepend">
               <span class="input-group-text" id="inputGroup-sizing-default">Angulo por passo</span>
             </div>
-            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+            <input type="text" id="passo_motor" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
           </div>
 
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <span class="input-group-text" id="inputGroup-sizing-default">Angulo desejado</span>
             </div>
-            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+            <input type="text" id="angulo_desejado" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
           </div> <br>
 
           <div class="button btn btn-success btn-lg" id="but_start" type="button">Start</div>
@@ -114,6 +114,21 @@
     $('#but_sentido_antihorario').click(function(){ sentidoMotor('sentido_antihorario'); });
 
     function buttonComand(id){
+      if(id === "start"){
+        passo_motor = document.getElementById("passo_motor").value;
+        angulo_desejado = document.getElementById("angulo_desejado").value;
+        $.post("paramAngulo?passo_motor=" + passo_motor + "&angulo_desejado=" + angulo_desejado).done(function(data){
+          console.log("Funcao de setBouton " + JSON.stringify(data));
+          if(data.success === "1"){
+            console.log("OK");
+          }
+          else{
+            $("#label_comando").html("Motor em movimento(aperte -STOP- ou espere completar o movimento)");
+          }
+        }).fail(function(err){
+          console.log("err setButton " + JSON.stringify(err));
+        });
+      }
       $.post("buttonComand?button_id=" + id).done(function(data){
         console.log("Funcao de setBouton " + JSON.stringify(data));
         var id_button = "#but_" + id;

@@ -10,7 +10,7 @@
 #define serial_baund 115200
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial 0
+#define debug_serial 1
 
 //Definir tempo de chamada das threads
 #define tempo_debug 1000
@@ -27,6 +27,8 @@ ThreadController MAIN_THREAD;
 String tipo_passo = "full_step";
 String sentido_rotacao = "sentido_horario";
 String status_motor = "stop";
+float passo_motor = 15.0;
+float angulo_desejado = 0;
 
 //Variavel para permitir o update dos comandos pro motor
 bool command_update = true;
@@ -53,6 +55,21 @@ void debugSerial(){
 
 	Serial.print("IP address: ");
 	Serial.println(WiFi.localIP());
+
+	Serial.print("Tipo de passo: ");
+	Serial.println(tipo_passo);
+
+	Serial.print("Sentido de rotacao: ");
+	Serial.println(sentido_rotacao);
+
+	Serial.print("Status do motor: ");
+	Serial.println(status_motor);
+
+	Serial.print("Passo do motor: ");
+	Serial.println(passo_motor);
+
+	Serial.print("Angulo desejado: ");
+	Serial.println(angulo_desejado);
 }
 
 void funcaoTest(){
@@ -94,6 +111,7 @@ void buttonComand(){
 		if(comand_status=="start"){
 			if(command_update){
 				status_motor = "start";
+				command_update = false;
 				Serial.println("Botao START precionado");
 			}
 			else success = "0";
@@ -101,6 +119,7 @@ void buttonComand(){
 		else{
 			if (comand_status=="stop") {
 				status_motor = "stop";
+				command_update = true;
 				Serial.println("Botao STOP precionado");
 			}
 			else{
@@ -232,6 +251,33 @@ void sentidoMotor(){
 	}
 }
 
+void paramAngulo(){
+	if (server.hasArg("passo_motor")== true && server.hasArg("angulo_desejado")== true && command_update){ //Check if body received
+		Serial.println("Valor de angulos selecionados");
+
+		passo_motor = server.arg("passo_motor").toFloat();
+		angulo_desejado = server.arg("angulo_desejado").toFloat();
+		String success = "1";
+
+		String json = "{\"passo_motor\":\"" + String(passo_motor) + "\",";
+		json += "\"angulo_desejado\":\"" + String(angulo_desejado) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+  }
+	else{
+		float passo_motor2 = 0.0;
+		float angulo_desejado2 = 0.0;
+		String success = "0";
+
+		String json = "{\"sentidoMotor\":\"" + String(passo_motor2) + "\",";
+		json += "\"angulo_desejado\":\"" + String(angulo_desejado2) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+	}
+}
+
 void configSpiffs(){
   if (!SPIFFS.begin())
   {
@@ -249,6 +295,7 @@ void configServer(){
 	server.on("/buttonComand",buttonComand);
 	server.on("/paramStep",paramStep);
 	server.on("/sentidoMotor", sentidoMotor);
+	server.on("/paramAngulo",paramAngulo);
 
 	server.serveStatic("/img", SPIFFS, "/img");
   server.serveStatic("/", SPIFFS, "/index.html");
