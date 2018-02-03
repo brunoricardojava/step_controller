@@ -1,16 +1,30 @@
-#include "Arduino.h"
+/*
+Author:Bruno R. S.
+Este código tem o objetivo de controlar um motor de passo_motor
+atravez de uma bagina web.
+As variaveis usadas para controle do motor são:
+String tipo_passo ("full_step";"half_step";"quarter_step";"eighth_step";"sixteenth_step")
+String sentido_rotacao ("sentido_horario";"sentido_antihorario")
+String status_motor ("start";"stop";"reset")
+float passo_motor (tipo float)
+float angulo_desejado (tipo float)
+*/
+#include "Arduino.h" //Adicionei essa biblioteca para garantir as dependencias do framwwork arduino
 #include "Thread.h"
 #include "ThreadController.h"
 #include "WiFiManager.h"
 #include "ESP8266WebServer.h"
 #include "FS.h"
-#include "ESP8266FtpServer.h"
+#include "ESP8266FtpServer.h" //Cria um servidor ftp para atualizar os arquivos web.
 
 //Velocidade serial
 #define serial_baund 115200
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial 1
+#define debug_serial 0
+
+//Habilitar/desabilitar servidor ftp
+#define ftp_server 0
 
 //Definir tempo de chamada das threads
 #define tempo_debug 1000
@@ -48,6 +62,7 @@ void configSerial(){
 void configWifi(){
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
+	//WifiManager.resetSettings(); //Comando para resetar as configurações salvas pela biblioteca
 }
 
 void debugSerial(){
@@ -100,16 +115,16 @@ void funcaoTest(){
 	server.send(200, "text/plain", message);       //Response to the HTTP requestP)
 }
 
-
 void buttonComand(){
+	//Verifica se tem o campo correspondente
 	if (server.hasArg("button_id")== true){ //Check if body received
 		Serial.println("Botao de comando precionado");
 
 		String comand_status = server.arg("button_id");
 		String success = "1";
 
-		if(comand_status=="start"){
-			if(command_update){
+		if(comand_status=="start"){//Se o comando for start faz oque deve ser feito, semelhante ao resto da função para outros comandos
+			if(command_update){//Condição de atualização de commando
 				status_motor = "start";
 				command_update = false;
 				Serial.println("Botao START precionado");
@@ -134,15 +149,16 @@ void buttonComand(){
 			}
 		}
 
+		//Prepara um objeto json, contendo o comando que chegou e o status dele sendo "1" e "0";
 		String json = "{\"buttonComand\":\"" + String(comand_status) + "\",";
   	json += "\"success\":\"" + String(success) + "\"}";
 
-  	server.send(200, "application/json", json);
+  	server.send(200, "application/json", json);//Envia o arquivo json
   }
 }
 
 void paramStep(){
-	if (server.hasArg("button_id")== true && command_update){ //Check if body received
+	if (server.hasArg("button_id")== true && command_update){ //Verifica se tem comando e variavel de atualização de comando
 		Serial.println("Botao de parametro precionado");
 
 		String param_status = server.arg("button_id");
@@ -200,7 +216,7 @@ void paramStep(){
   	server.send(200, "application/json", json);
 
 	}
-	else{
+	else{ //Caso não venha comando ou não passo ser atualizado
 
 		String param_status = server.arg("button_id");
 		String success = "0";
@@ -252,7 +268,7 @@ void sentidoMotor(){
 }
 
 void paramAngulo(){
-	if (server.hasArg("passo_motor")== true && server.hasArg("angulo_desejado")== true && command_update){ //Check if body received
+	if (server.hasArg("passo_motor")== true && server.hasArg("angulo_desejado")== true && command_update){
 		Serial.println("Valor de angulos selecionados");
 
 		passo_motor = server.arg("passo_motor").toFloat();
@@ -278,35 +294,38 @@ void paramAngulo(){
 	}
 }
 
-void configSpiffs(){
+void configSpiffs(){//Inicia sistema de arquivo SPIFFS
   if (!SPIFFS.begin())
   {
     // Serious problem
     Serial.println("SPIFFS Mount failed");
   } else {
     Serial.println("SPIFFS Mount succesfull");
-		ftpSrv.begin("esp8266", "esp8266");
+		if(ftp_server) ftpSrv.begin("esp8266", "esp8266"); //Condição para inicio do servidor ftp
   }
   delay(50);
 }
 
 void configServer(){
+	//Encaminhamento de requesição POST com os seguintes endereços:
 	server.on("/test",funcaoTest);
 	server.on("/buttonComand",buttonComand);
 	server.on("/paramStep",paramStep);
 	server.on("/sentidoMotor", sentidoMotor);
 	server.on("/paramAngulo",paramAngulo);
 
+	//Pastas de acesso para a pagina web dentro do micro controlador
 	server.serveStatic("/img", SPIFFS, "/img");
   server.serveStatic("/", SPIFFS, "/index.html");
   server.serveStatic("/js", SPIFFS, "/js");
   server.serveStatic("/css", SPIFFS, "/css");
 
-	server.begin();
+
+	server.begin();//Inicia servidor HTTP
 	Serial.println("Server listening");
 }
 
-void configThread(){
+void configThread(){//Configuração das threads
 	DEBUG_SERIAL.setInterval(tempo_debug);
 	DEBUG_SERIAL.onRun(debugSerial);
 
@@ -324,5 +343,5 @@ void setup(){
 void loop(){
 	MAIN_THREAD.run();
 	server.handleClient();
-	ftpSrv.handleFTP();
+	if(ftp_server) ftpSrv.handleFTP();
 }
