@@ -21,7 +21,7 @@ float angulo_desejado (tipo float)
 #define serial_baund 115200
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial false
+#define debug_serial true
 
 //Habilitar/desabilitar servidor ftp
 #define ftp_server 0
@@ -31,14 +31,14 @@ float angulo_desejado (tipo float)
 #define tempo_motor 300
 
 //Definição dos pinos do motor de passo_motor
-#define driver_MS1 2
-#define driver_MS2 3
-#define driver_MS3 4
+#define driver_MS1 D1
+#define driver_MS2 D2
+#define driver_MS3 D3
 
-#define driver_enable 5
-#define driver_RST 6
-#define driver_STEP 7
-#define driver_DIR 8
+#define driver_enable D4
+#define driver_RST D5
+#define driver_STEP D6
+#define driver_DIR D7
 
 //Instanciando Threads
 Thread DEBUG_SERIAL;
@@ -359,6 +359,7 @@ void configThread(){//Configuração das threads
 	START_MOTOR.onRun(startMotor);
 
 	MAIN_THREAD.add(&DEBUG_SERIAL);
+	MAIN_THREAD.add(&START_MOTOR);
 }
 
 void setup(){
