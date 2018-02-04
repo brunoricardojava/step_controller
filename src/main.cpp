@@ -31,14 +31,14 @@ float angulo_desejado (tipo float)
 #define tempo_motor 300
 
 //Definição dos pinos do motor de passo_motor
-#define driver_MS1 D1
-#define driver_MS2 D2
-#define driver_MS3 D3
+#define driver_MS1 D2
+#define driver_MS2 D3
+#define driver_MS3 D4
 
-#define driver_enable D4
-#define driver_RST D5
-#define driver_STEP D6
-#define driver_DIR D7
+#define driver_enable D5
+#define driver_RST D6
+#define driver_STEP D7
+#define driver_DIR D8
 
 //Instanciando Threads
 Thread DEBUG_SERIAL;
@@ -399,7 +399,7 @@ void setMicroStep(String tipo) {   //retorna o valor e seta os pinos para o micr
   else if (tipo == "eighth_step") {
     micro_step = 8;
     digitalWrite(driver_MS1, HIGH);
-    digitalWrite(driver_MS2, LOW);
+    digitalWrite(driver_MS2, HIGH);
     digitalWrite(driver_MS3, LOW);
   }
   else if (tipo == "sixteenth_step") {
