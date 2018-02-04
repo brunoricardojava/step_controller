@@ -438,7 +438,7 @@ int stepsCount(float passo_motor, float angulo_desejado) {
 
 
 void startMotor(){
-	if(status_motor == "start"){
+	if(status_motor == "start" && command_update == true){
 		command_update = false;
 		digitalWrite(driver_enable, LOW);
 	  digitalWrite(driver_RST, LOW);
