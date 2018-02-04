@@ -151,7 +151,6 @@ void buttonComand(){
 		if(comand_status=="start"){//Se o comando for start faz oque deve ser feito, semelhante ao resto da função para outros comandos
 			if(command_update){//Condição de atualização de commando
 				status_motor = "start";
-				command_update = false;
 				Serial.println("Botao START precionado");
 			}
 			else success = "0";
