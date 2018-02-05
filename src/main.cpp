@@ -438,14 +438,15 @@ int stepsCount(float passo_motor, float angulo_desejado) {
 
 void startMotor(){
 	if(status_motor == "start" && command_update == true){
+		START_MOTOR.enabled = false;
 		command_update = false;
 		digitalWrite(driver_enable, LOW);
-	  digitalWrite(driver_RST, LOW);
-	  delay(10);
-	  digitalWrite(driver_RST, HIGH);
-	  delay(1);
-	  setMicroStep(tipo_passo);
-	  setDir(sentido_rotacao);
+	  	digitalWrite(driver_RST, LOW);
+	  	delay(10);
+	  	digitalWrite(driver_RST, HIGH);
+	  	delay(1);
+	  	setMicroStep(tipo_passo);
+	  	setDir(sentido_rotacao);
 
 	  for (int i = 1; i <= stepsCount(passo_motor, angulo_desejado); i++) {
 	    if (0 < rot_speed <= 100) {
@@ -459,9 +460,10 @@ void startMotor(){
 	    }
 	  }
 
-		status_motor = "stop";
+	  	START_MOTOR.enabled = true;
+	  	status_motor = "stop";
 		command_update = true;
 
-	  digitalWrite(driver_enable, HIGH);
+	  	digitalWrite(driver_enable, HIGH);
 	}
 }
