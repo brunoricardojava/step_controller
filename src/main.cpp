@@ -70,12 +70,12 @@ void startMotor();
 
 void configPin(){
 	pinMode(driver_MS1, OUTPUT);
-  pinMode(driver_MS2, OUTPUT);
-  pinMode(driver_MS3, OUTPUT);
-  pinMode(driver_enable, OUTPUT);
-  pinMode(driver_DIR, OUTPUT);
-  pinMode(driver_RST, OUTPUT);
-  pinMode(driver_STEP, OUTPUT);
+	pinMode(driver_MS2, OUTPUT);
+	pinMode(driver_MS3, OUTPUT);
+	pinMode(driver_enable, OUTPUT);
+	pinMode(driver_DIR, OUTPUT);
+	pinMode(driver_RST, OUTPUT);
+	pinMode(driver_STEP, OUTPUT);
 }
 
 void configSerial(){
@@ -340,9 +340,9 @@ void configServer(){
 
 	//Pastas de acesso para a pagina web dentro do micro controlador
 	server.serveStatic("/img", SPIFFS, "/img");
-  server.serveStatic("/", SPIFFS, "/index.html");
-  server.serveStatic("/js", SPIFFS, "/js");
-  server.serveStatic("/css", SPIFFS, "/css");
+	server.serveStatic("/", SPIFFS, "/index.html");
+	server.serveStatic("/js", SPIFFS, "/js");
+	server.serveStatic("/css", SPIFFS, "/css");
 
 
 	server.begin();//Inicia servidor HTTP
