@@ -45,6 +45,18 @@
             <div class="btn btn-primary" id="but_sentido_antihorario" type="button">Sentido Anti-horario</div>
           </div><br><br>
 
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="label_velocidade_motor">Escolha a velocidade de rotacao desejado: </span>
+          </div>
+
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <div class="btn btn-primary" id="but_velocidade_10" type="button">10</div>
+            <div class="btn btn-primary" id="but_velocidade_25" type="button">25</div>
+            <div class="btn btn-primary" id="but_velocidade_50" type="button">50</div>
+            <div class="btn btn-primary" id="but_velocidade_75" type="button">75</div>
+            <div class="btn btn-primary" id="but_velocidade_100" type="button">100</div>
+          </div><br><br>
+
           <div class="input-group mb-3">
             <div class="input-group-prepend">
               <span class="input-group-text" id="inputGroup-sizing-default">Angulo por passo</span>
@@ -112,6 +124,11 @@
     $('#but_sixteenth_step').click(function(){ paramStep('sixteenth_step'); });
     $('#but_sentido_horario').click(function(){ sentidoMotor('sentido_horario'); });
     $('#but_sentido_antihorario').click(function(){ sentidoMotor('sentido_antihorario'); });
+    $('#but_velocidade_10').click(function(){ velocidadeMotor('10'); });
+    $('#but_velocidade_25').click(function(){ velocidadeMotor('25'); });
+    $('#but_velocidade_50').click(function(){ velocidadeMotor('50'); });
+    $('#but_velocidade_75').click(function(){ velocidadeMotor('75'); });
+    $('#but_velocidade_100').click(function(){ velocidadeMotor('100'); });
 
     function buttonComand(id){
       if(id === "start"){
@@ -175,6 +192,23 @@
         console.log("err setButton " + JSON.stringify(err));
       });
     }
+
+    function velocidadeMotor(id){
+      $.post("velocidadeMotor?velocidade_motor=" + id).done(function(data){
+        console.log("Funcao de setBouton " + JSON.stringify(data));
+        var id_button = "#but_" + id;
+        console.log("data.success: "+data.success);
+        if ( data.success === "1") {
+          console.log("OK");
+          $("#label_velocidade_motor").html("Velocidade selecionada: " + String(data.velocidadeMotor));
+        } else {
+          $("#label_velocidade_motor").html("Motor em movimento(aperte -STOP- ou espere completar o movimento)");
+        }
+      }).fail(function(err){
+        console.log("err setButton " + JSON.stringify(err));
+      });
+    }
+
 
 
     var supports_storage = supports_html5_storage();

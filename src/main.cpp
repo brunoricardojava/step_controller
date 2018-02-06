@@ -102,6 +102,9 @@ void debugSerial(){
 	Serial.print("Sentido de rotacao: ");
 	Serial.println(sentido_rotacao);
 
+	Serial.print("Velocidade de rotacao: ");
+	Serial.println(rot_speed);
+
 	Serial.print("Status do motor: ");
 	Serial.println(status_motor);
 
@@ -318,6 +321,29 @@ void paramAngulo(){
 	}
 }
 
+void paramVelocidade(){
+	if (server.hasArg("velocidade_motor")== true && command_update){
+		Serial.println("Valor de velocidade selecionados");
+
+		rot_speed = server.arg("velocidade_motor").toFloat();
+		String success = "1";
+
+		String json = "{\"velocidadeMotor\":\"" + String(rot_speed) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+  }
+	else{
+		float velocidade_motor2 = 0.0;
+		String success = "0";
+
+		String json = "{\"velocidadeMotor\":\"" + String(velocidade_motor2) + "\",";
+  	json += "\"success\":\"" + String(success) + "\"}";
+
+  	server.send(200, "application/json", json);
+	}
+}
+
 void configSpiffs(){//Inicia sistema de arquivo SPIFFS
   if (!SPIFFS.begin())
   {
@@ -337,6 +363,7 @@ void configServer(){
 	server.on("/paramStep",paramStep);
 	server.on("/sentidoMotor", sentidoMotor);
 	server.on("/paramAngulo",paramAngulo);
+	server.on("/velocidadeMotor", paramVelocidade);
 
 	//Pastas de acesso para a pagina web dentro do micro controlador
 	server.serveStatic("/img", SPIFFS, "/img");
@@ -451,15 +478,9 @@ void startMotor(){
 	  for (int i = 1; i <= stepsCount(passo_motor, angulo_desejado); i++) {
 	    if (0 < rot_speed <= 100) {
 	      digitalWrite(driver_STEP, HIGH);
-				Serial.print("Primeiro print: ");
-				Serial.println(millis());
 	      delay(500 / rot_speed);
-				Serial.print("Segundo print: ");
-				Serial.println(millis());
 	      digitalWrite(driver_STEP, LOW);
 	      delay(500 / rot_speed);
-				Serial.print("Terceiro print: ");
-				Serial.println(millis());
 	    }
 	    else {
 	      Serial.println("Erro! O valor de velocidade deve ser entre 0 e 100%");
