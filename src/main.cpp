@@ -31,11 +31,11 @@ float angulo_desejado (tipo float)
 #define tempo_motor 300
 
 //Definição dos pinos do motor de passo_motor
-#define driver_MS1 D2
-#define driver_MS2 D3
-#define driver_MS3 D4
+#define driver_MS1 D3
+#define driver_MS2 D4
+#define driver_MS3 D5
 
-#define driver_enable D5
+#define driver_enable D2
 #define driver_RST D6
 #define driver_STEP D7
 #define driver_DIR D8
@@ -441,19 +441,25 @@ void startMotor(){
 		START_MOTOR.enabled = false;
 		command_update = false;
 		digitalWrite(driver_enable, LOW);
-	  	digitalWrite(driver_RST, LOW);
-	  	delay(10);
-	  	digitalWrite(driver_RST, HIGH);
-	  	delay(1);
-	  	setMicroStep(tipo_passo);
-	  	setDir(sentido_rotacao);
+	  digitalWrite(driver_RST, LOW);
+	  delay(10);
+	  digitalWrite(driver_RST, HIGH);
+	  delay(1);
+	  setMicroStep(tipo_passo);
+	  setDir(sentido_rotacao);
 
 	  for (int i = 1; i <= stepsCount(passo_motor, angulo_desejado); i++) {
 	    if (0 < rot_speed <= 100) {
 	      digitalWrite(driver_STEP, HIGH);
+				Serial.print("Primeiro print: ");
+				Serial.println(millis());
 	      delay(500 / rot_speed);
+				Serial.print("Segundo print: ");
+				Serial.println(millis());
 	      digitalWrite(driver_STEP, LOW);
 	      delay(500 / rot_speed);
+				Serial.print("Terceiro print: ");
+				Serial.println(millis());
 	    }
 	    else {
 	      Serial.println("Erro! O valor de velocidade deve ser entre 0 e 100%");
@@ -462,7 +468,7 @@ void startMotor(){
 
 	  	START_MOTOR.enabled = true;
 	  	status_motor = "stop";
-		command_update = true;
+			command_update = true;
 
 	  	digitalWrite(driver_enable, HIGH);
 	}
