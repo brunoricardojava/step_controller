@@ -28,7 +28,7 @@ float angulo_desejado (tipo float)
 #define debug_serial false
 
 //Habilitar/desabilitar servidor ftp
-#define ftp_server 0
+#define ftp_server 1
 
 //Definir tempo de chamada das threads
 #define tempo_debug 1000
@@ -44,6 +44,9 @@ float angulo_desejado (tipo float)
 #define driver_RST D6
 #define driver_STEP D7
 #define driver_DIR D8
+
+//Instanciando objeto WifiManager
+WiFiManager wifiManager;
 
 //Instanciando Threads
 Thread DEBUG_SERIAL;
@@ -97,7 +100,6 @@ void configSerial(){
 }
 
 void configWifi(){
-	WiFiManager wifiManager;
 	wifiManager.autoConnect();
 	Udp.begin(local_udp_port);
   	Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), local_udp_port);
@@ -142,6 +144,7 @@ void funcaoTest(){
   Serial.println(message);
 	*/
 	//-------------------------------------------------//
+	wifiManager.resetSettings();
 	String message = "Number of args received:";
 	message += server.args();            //Get number of parameters
 	message += "\n";                            //Add a new line
