@@ -16,12 +16,16 @@ float angulo_desejado (tipo float)
 #include "ESP8266WebServer.h"
 #include "FS.h"
 #include "ESP8266FtpServer.h" //Cria um servidor ftp para atualizar os arquivos web.
+#include <WiFiUdp.h>
 
 //Velocidade serial
 #define serial_baund 115200
 
+//Definição da porta do server UDP
+#define local_udp_port 4210
+
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial true
+#define debug_serial false
 
 //Habilitar/desabilitar servidor ftp
 #define ftp_server 0
@@ -29,6 +33,7 @@ float angulo_desejado (tipo float)
 //Definir tempo de chamada das threads
 #define tempo_debug 1000
 #define tempo_motor 300
+#define tempo_udp 300
 
 //Definição dos pinos do motor de passo_motor
 #define driver_MS1 D3
@@ -43,6 +48,7 @@ float angulo_desejado (tipo float)
 //Instanciando Threads
 Thread DEBUG_SERIAL;
 Thread START_MOTOR;
+Thread UDP_IP;
 
 //Instanciando Thread controller
 ThreadController MAIN_THREAD;
@@ -56,17 +62,23 @@ float angulo_desejado = 0.0;
 int rot_speed = 100;
 int micro_step = 1;
 
+char incomingPacket[255];  // buffer for incoming packets
+
 //Variavel para permitir o update dos comandos pro motor
 bool command_update = true;
 
 //Instanciando um servidor http
 ESP8266WebServer server(80);
 
+//Instanciando server UDP
+WiFiUDP Udp;
+
 //Instanciando servidor FtpServer
 FtpServer ftpSrv;
 
 //Declatando algumas funções
 void startMotor();
+void udpIp();
 
 void configPin(){
 	pinMode(driver_MS1, OUTPUT);
@@ -87,6 +99,8 @@ void configSerial(){
 void configWifi(){
 	WiFiManager wifiManager;
 	wifiManager.autoConnect();
+	Udp.begin(local_udp_port);
+  	Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), local_udp_port);
 	//WifiManager.resetSettings(); //Comando para resetar as configurações salvas pela biblioteca
 }
 
@@ -384,8 +398,12 @@ void configThread(){//Configuração das threads
 	START_MOTOR.setInterval(tempo_motor);
 	START_MOTOR.onRun(startMotor);
 
+	UDP_IP.setInterval(tempo_udp);
+	UDP_IP.onRun(udpIp);
+
 	MAIN_THREAD.add(&DEBUG_SERIAL);
 	MAIN_THREAD.add(&START_MOTOR);
+	MAIN_THREAD.add(&UDP_IP);
 }
 
 void setup(){
@@ -401,6 +419,28 @@ void loop(){
 	MAIN_THREAD.run();
 	server.handleClient();
 	if(ftp_server) ftpSrv.handleFTP();
+}
+
+void udpIp(){
+	int packetSize = Udp.parsePacket();
+  	if (packetSize){
+
+		// receive incoming UDP packets
+		Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+		int len = Udp.read(incomingPacket, 255);
+		if (len > 0){
+		  incomingPacket[len] = 0;
+		}
+		Serial.printf("UDP packet contents: %s\n", incomingPacket);
+	
+  		// send back a reply, to the IP address and port we got the packet from
+  		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  		char ipBuffer[20];
+  		WiFi.localIP().toString().toCharArray(ipBuffer, 20);
+  		Udp.write(ipBuffer);
+  		Udp.endPacket();
+  		Serial.println("Sent ip adress to server");
+	}
 }
 
 void setMicroStep(String tipo) {   //retorna o valor e seta os pinos para o micro passo desejado
