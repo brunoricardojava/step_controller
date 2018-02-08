@@ -25,7 +25,7 @@ float angulo_desejado (tipo float)
 #define local_udp_port 4210
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial false
+#define debug_serial true
 
 //Habilitar/desabilitar servidor ftp
 #define ftp_server 1
