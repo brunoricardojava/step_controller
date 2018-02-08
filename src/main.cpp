@@ -416,6 +416,8 @@ void setup(){
 	configSpiffs();
 	configServer();
 	configPin();
+
+	WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
 
 void loop(){
