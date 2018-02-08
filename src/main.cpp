@@ -387,6 +387,7 @@ void configServer(){
 	server.serveStatic("/", SPIFFS, "/index.html");
 	server.serveStatic("/js", SPIFFS, "/js");
 	server.serveStatic("/css", SPIFFS, "/css");
+	server.serveStatic("/theme", SPIFFS, "/theme");
 
 
 	server.begin();//Inicia servidor HTTP
