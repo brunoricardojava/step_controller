@@ -512,10 +512,13 @@ int stepsCount(float passo_motor, float angulo_desejado) {
   return steps;
 }
 
+int qnt_steps = 0;
+
 void startMotor(){
 	if((status_motor == "start" && command_update == true) || status_motor == "stop"){
 		if(status_motor == "start"){
 			command_update = false;
+			qnt_steps = stepsCount(passo_motor, angulo_desejado);
 			digitalWrite(driver_enable, LOW);
 			delay(1);
 			digitalWrite(driver_RST, HIGH);
@@ -528,6 +531,7 @@ void startMotor(){
 			Serial.println("Habilitado a thread do pulso...");
 		}
 		else{
+			STEP_PULSE.enabled = false;
 			command_update = true;
 			Serial.println("Pulso step desligado...");
 		}
@@ -535,9 +539,16 @@ void startMotor(){
 }
 
 void pulseStep(){
-	if(cont_steps <= stepsCount(passo_motor, angulo_desejado)){
-		cont_steps += cont_steps;
+	if(cont_steps <= qnt_steps){
+		cont_steps = cont_steps + 1;
 		digitalWrite(driver_STEP, !digitalRead(driver_STEP));
+		Serial.print("Pulso Step enviado, tempo: ");
+		Serial.println(millis());
+		Serial.print("cont_steps: ");
+		Serial.println(cont_steps);
+		Serial.print("Quantidade de passos: ");
+		Serial.println(qnt_steps);
+
 	}
 	else{
 		STEP_PULSE.enabled = false;
