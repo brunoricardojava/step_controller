@@ -31,9 +31,10 @@ float angulo_desejado (tipo float)
 #define ftp_server 0
 
 //Definir tempo de chamada das threads
-#define tempo_debug 1000
-#define tempo_motor 300
-#define tempo_udp 300
+#define tempo_debug 1000 //miliSecond
+#define tempo_motor 300  //miliSecond
+#define tempo_udp 300    //miliSecond
+#define tempo_step 5     //miliSecond
 
 //Definição dos pinos do motor de passo_motor
 #define driver_MS1 D3
@@ -49,6 +50,7 @@ float angulo_desejado (tipo float)
 Thread DEBUG_SERIAL;
 Thread START_MOTOR;
 Thread UDP_IP;
+Thread STEP_PULSE;
 
 //Instanciando Thread controller
 ThreadController MAIN_THREAD;
@@ -61,6 +63,8 @@ float passo_motor = 15.0;
 float angulo_desejado = 0.0;
 int rot_speed = 100;
 int micro_step = 1;
+
+int cont_steps = 0;
 
 char incomingPacket[255];  // buffer for incoming packets
 
@@ -79,6 +83,7 @@ FtpServer ftpSrv;
 //Declatando algumas funções
 void startMotor();
 void udpIp();
+void pulseStep();
 
 void configPin(){
 	pinMode(driver_MS1, OUTPUT);
@@ -401,9 +406,14 @@ void configThread(){//Configuração das threads
 	UDP_IP.setInterval(tempo_udp);
 	UDP_IP.onRun(udpIp);
 
+	STEP_PULSE.setInterval(tempo_step);
+	STEP_PULSE.onRun(pulseStep);
+	STEP_PULSE.enabled = false;
+
 	MAIN_THREAD.add(&DEBUG_SERIAL);
 	MAIN_THREAD.add(&START_MOTOR);
 	MAIN_THREAD.add(&UDP_IP);
+	MAIN_THREAD.add(&STEP_PULSE);
 }
 
 void setup(){
@@ -502,35 +512,37 @@ int stepsCount(float passo_motor, float angulo_desejado) {
   return steps;
 }
 
-
 void startMotor(){
-	if(status_motor == "start" && command_update == true){
-		START_MOTOR.enabled = false;
-		command_update = false;
-		digitalWrite(driver_enable, LOW);
-	  	//digitalWrite(driver_RST, LOW);
-	  	delay(1);
-	  	digitalWrite(driver_RST, HIGH);
-	  	delay(1);
-	  	setMicroStep(tipo_passo);
-	  	setDir(sentido_rotacao);
-	  	delay(100);
-	  for (int i = 1; i <= stepsCount(passo_motor, angulo_desejado); i++) {
-	    if (0 < rot_speed <= 100) {
-	      digitalWrite(driver_STEP, HIGH);
-	      delay(500 / rot_speed);
-	      digitalWrite(driver_STEP, LOW);
-	      delay(500 / rot_speed);
-	    }
-	    else {
-	      Serial.println("Erro! O valor de velocidade deve ser entre 0 e 100%");
-	    }
-	  }
+	if((status_motor == "start" && command_update == true) || status_motor == "stop"){
+		if(status_motor == "start"){
+			command_update = false;
+			digitalWrite(driver_enable, LOW);
+			delay(1);
+			digitalWrite(driver_RST, HIGH);
+			delay(1);
+			setMicroStep(tipo_passo);
+			setDir(sentido_rotacao);
+			delay(1);
+			STEP_PULSE.setInterval(500/rot_speed);
+			STEP_PULSE.enabled = true;
+			Serial.println("Habilitado a thread do pulso...");
+		}
+		else{
+			command_update = true;
+			Serial.println("Pulso step desligado...");
+		}
+	}
+}
 
-	  	START_MOTOR.enabled = true;
-	  	status_motor = "stop";
-		command_update = true;
-
-	  	//digitalWrite(driver_enable, HIGH);
+void pulseStep(){
+	if(cont_steps <= stepsCount(passo_motor, angulo_desejado)){
+		cont_steps += cont_steps;
+		digitalWrite(driver_STEP, !digitalRead(driver_STEP));
+	}
+	else{
+		STEP_PULSE.enabled = false;
+		cont_steps = 0;
+		status_motor = "stop";
+		Serial.println("Motor completou o moviemnto");
 	}
 }
