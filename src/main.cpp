@@ -25,10 +25,10 @@ float angulo_desejado (tipo float)
 #define local_udp_port 4210
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial false
+#define debug_serial true
 
 //Habilitar/desabilitar servidor ftp
-#define ftp_server 0
+#define ftp_server 1
 
 //Definir tempo de chamada das threads
 #define tempo_debug 1000 //miliSecond
@@ -45,6 +45,9 @@ float angulo_desejado (tipo float)
 #define driver_RST D6
 #define driver_STEP D7
 #define driver_DIR D8
+
+//Instanciando objeto WifiManager
+WiFiManager wifiManager;
 
 //Instanciando Threads
 Thread DEBUG_SERIAL;
@@ -102,7 +105,6 @@ void configSerial(){
 }
 
 void configWifi(){
-	WiFiManager wifiManager;
 	wifiManager.autoConnect();
 	Udp.begin(local_udp_port);
   	Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), local_udp_port);
@@ -147,6 +149,7 @@ void funcaoTest(){
   Serial.println(message);
 	*/
 	//-------------------------------------------------//
+	wifiManager.resetSettings();
 	String message = "Number of args received:";
 	message += server.args();            //Get number of parameters
 	message += "\n";                            //Add a new line
@@ -390,6 +393,7 @@ void configServer(){
 	server.serveStatic("/", SPIFFS, "/index.html");
 	server.serveStatic("/js", SPIFFS, "/js");
 	server.serveStatic("/css", SPIFFS, "/css");
+	server.serveStatic("/theme", SPIFFS, "/theme");
 
 
 	server.begin();//Inicia servidor HTTP
@@ -424,6 +428,8 @@ void setup(){
 	configSpiffs();
 	configServer();
 	configPin();
+
+	WiFi.setSleepMode(WIFI_NONE_SLEEP);
 }
 
 void loop(){

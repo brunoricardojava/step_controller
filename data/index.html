@@ -2,12 +2,12 @@
 <html charset="UTF-8">
   <head>
     <meta name="viewport">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.0/bootstrap-table.min.css">
-    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/superhero/bootstrap.min.css" rel="stylesheet" title="main">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-table.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap-table.min.css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" title="main">
     <title>Controle Motor de Passo(esp8266)</title>
   </head>
   <body>
@@ -89,21 +89,6 @@
             <ul class="dropdown-menu">
               <li><a class="change-style-menu-item" href="#" rel="bootstrap">Boostrap</a></li>
               <li><a class="change-style-menu-item" href="#" rel="cerulean">Cerulean</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="cosmo">Cosmo</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="cyborg">Cyborg</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="darkly">Darkly</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="flatly">Flatly</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="journal">Journal</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="lumen">Lumen</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="paper">Paper</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="readable">Readable</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="sandstone">Sandstone</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="simplex">Simplex</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="slate">Slate</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="spacelab">Spacelab</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="superhero">Superhero</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="united">United</a></li>
-              <li><a class="change-style-menu-item" href="#" rel="yeti">Yeti  </a></li>
             </ul>
           </div>
         </div>
@@ -211,7 +196,7 @@
 
 
 
-    var supports_storage = supports_html5_storage();
+    /*var supports_storage = supports_html5_storage();
     if (supports_storage) {
       var theme = localStorage.theme;
       console.log("Recharge le theme " + theme);
@@ -235,9 +220,9 @@
       $('#labelTheme').html("Th&egrave;me : " + theme_name);
       var url_theme = "";
       if ( theme_name === "bootstrap" ) {
-        url_theme = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css";
+        url_theme = "css/bootstrap.min.css";
       } else {
-        url_theme = "https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/" + theme_name + "/bootstrap.min.css";
+        url_theme = "theme/" + theme_name;
       }
       if (supports_storage) {
         // Enregistre le theme sélectionné en local - save into the local database the selected theme
@@ -256,7 +241,7 @@
       } catch (e) {
         return false;
       }
-    }
+    }*/
 
     </script>
 
