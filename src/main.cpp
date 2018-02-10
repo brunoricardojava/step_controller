@@ -185,6 +185,7 @@ void buttonComand(){
 			}
 			else{
 				if (comand_status=="reset") {
+					cont_steps = 0;
 					Serial.println("Botao RESET precionado");
 				}
 				else{
@@ -524,6 +525,7 @@ void startMotor(){
 			digitalWrite(driver_RST, HIGH);
 			delay(1);
 			setMicroStep(tipo_passo);
+			delay(1);
 			setDir(sentido_rotacao);
 			delay(1);
 			STEP_PULSE.setInterval(500/rot_speed);
@@ -539,7 +541,7 @@ void startMotor(){
 }
 
 void pulseStep(){
-	if(cont_steps <= qnt_steps){
+	if(cont_steps <= qnt_steps*2){
 		cont_steps = cont_steps + 1;
 		digitalWrite(driver_STEP, !digitalRead(driver_STEP));
 		Serial.print("Pulso Step enviado, tempo: ");
