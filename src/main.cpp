@@ -25,7 +25,7 @@ float angulo_desejado (tipo float)
 #define local_udp_port 4210
 
 //Habilitar/desabilitar debug serial_baund
-#define debug_serial true
+#define debug_serial false
 
 //Habilitar/desabilitar servidor ftp
 #define ftp_server 1
@@ -525,23 +525,25 @@ void startMotor(){
 	if((status_motor == "start" && command_update == true) || status_motor == "stop"){
 		if(status_motor == "start"){
 			command_update = false;
+			setMicroStep(tipo_passo);
+			setDir(sentido_rotacao);
 			qnt_steps = stepsCount(passo_motor, angulo_desejado);
 			digitalWrite(driver_enable, LOW);
 			delay(1);
 			digitalWrite(driver_RST, HIGH);
 			delay(1);
-			setMicroStep(tipo_passo);
 			delay(1);
-			setDir(sentido_rotacao);
 			delay(1);
 			STEP_PULSE.setInterval(500/rot_speed);
 			STEP_PULSE.enabled = true;
 			Serial.println("Habilitado a thread do pulso...");
 		}
 		else{
-			STEP_PULSE.enabled = false;
-			command_update = true;
-			Serial.println("Pulso step desligado...");
+			if(status_motor == "stop"){
+				STEP_PULSE.enabled = false;
+				command_update = true;
+				Serial.println("Pulso step desligado...");   
+			}			
 		}
 	}
 }
